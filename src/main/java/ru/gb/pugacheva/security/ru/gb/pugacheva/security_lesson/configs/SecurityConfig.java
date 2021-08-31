@@ -61,9 +61,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         log.info("Dao Authentication Provider");
         http.authorizeRequests()
-                .antMatchers("/auth_page/**").authenticated()
                 .antMatchers("/user_info").authenticated()
-                .antMatchers("/admin/**").hasAnyRole("ADMIN", "SUPERADMIN") // ROLE_ADMIN, ROLE_SUPERADMIN
+                .antMatchers("/edit_product/**").hasAnyAuthority("EDIT_PRODUCT","ADMINISTRATE")
+                .antMatchers("/delete_product/**").hasAnyAuthority("EDIT_PRODUCT","ADMINISTRATE")
+                .antMatchers("/add_product/**").hasAnyAuthority("EDIT_PRODUCT","ADMINISTRATE")
+                .antMatchers("/admin/**").hasAnyAuthority("ADMINISTRATE")
+                .antMatchers("/order/**").hasAnyAuthority("EDIT_PRODUCT","COMPLETE_ORDER","ADMINISTRATE") // вообще для заказа достаточно просто идентификации, но для тестирования применения прав сделала так
                 .anyRequest().permitAll()
                 .and()
                 .formLogin()
@@ -71,10 +74,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID");
-//                .and()
-//                .sessionManagement()
-//                .maximumSessions(1)
-//                .maxSessionsPreventsLogin(true);
     }
 
     @Bean
